@@ -11,13 +11,13 @@
                                     <div class="product-pic-zoom">
                                         <img class="product-big-img" :src="gambar_default" alt="" />
                                     </div>
-                                    <div class="product-thumbs">
+                                    <div class="product-thumbs" v-if="productDetails.product_galleries.length>0">
                                         <carousel class="product-thumbs-track ps-slider" :items="3" :nav="false" :autoplay="false"  :loop="false" :dots="false">
-                                            <div class="pt " @click="changeImage(thumbs[0])" :class="thumbs[0]== gambar_default ? 'active' : '' ">
-                                                <img src="img/nb/nb1.jpg" alt="" />
+                                            <div v-for="ss in productDetails.product_galleries" :key="ss.id" class="pt " @click="changeImage(ss.photo)" :class="ss.photo== gambar_default ? 'active' : '' ">
+                                                <img :src="ss.photo" alt="" />
                                             </div>
 
-                                            <div class="pt"  @click="changeImage(thumbs[1])" :class="thumbs[1]== gambar_default ? 'active' : '' ">
+                                            <!-- <div class="pt"  @click="changeImage(thumbs[1])" :class="thumbs[1]== gambar_default ? 'active' : '' ">
                                                 <img src="img/nb/nb2.jpg" alt="" />
                                             </div>
 
@@ -27,27 +27,19 @@
 
                                             <div class="pt" @click="changeImage(thumbs[3])" :class="thumbs[3]== gambar_default ? 'active' : '' ">
                                                 <img src="img/nb/nb4.jpg" alt="" />
-                                            </div>
+                                            </div> -->
                                         </carousel>
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="product-details">
                                         <div class="pd-title  text-left">
-                                            <span>oranges</span>
-                                            <h3>Pure Pineapple</h3>
+                                            <span>{{productDetails.type}}</span>
+                                            <h3>{{productDetails.name}}</h3>
                                         </div>
                                         <div class="pd-desc  text-left">
-                                            <p>
-                                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis, error officia. Rem aperiam laborum voluptatum vel, pariatur modi hic provident eum iure natus quos non a sequi, id accusantium! Autem.
-                                            </p>
-                                            <p>
-                                                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quam possimus quisquam animi, commodi, nihil voluptate nostrum neque architecto illo officiis doloremque et corrupti cupiditate voluptatibus error illum. Commodi expedita animi nulla aspernatur.
-                                                Id asperiores blanditiis, omnis repudiandae iste inventore cum, quam sint molestiae accusamus voluptates ex tempora illum sit perspiciatis. Nostrum dolor tenetur amet, illo natus magni veniam quia sit nihil dolores.
-                                                Commodi ratione distinctio harum voluptatum velit facilis voluptas animi non laudantium, id dolorem atque perferendis enim ducimus? A exercitationem recusandae aliquam quod. Itaque inventore obcaecati, unde quam
-                                                impedit praesentium veritatis quis beatae ea atque perferendis voluptates velit architecto?
-                                            </p>
-                                            <h4>$495.00</h4>
+                                            <p>{{productDetails.description}}</p>
+                                            <h4>${{productDetails.price}}</h4>
                                         </div>
                                         <div class="quantity">
                                             <router-link to="/cart" class="primary-btn pd-cart">Add To Cart</router-link>
@@ -65,6 +57,7 @@
 
 <script>
 import carousel from 'vue-owl-carousel';
+import axios from 'axios';
 export default {
     name : "Productshop",
   components: {
@@ -78,14 +71,33 @@ export default {
               "img/nb/nb2.jpg",
               "img/nb/nb3.jpg",
               "img/nb/nb4.jpg",
-          ]
+          ],
+          productDetails:[]
       }
   },
   methods:{
       changeImage(urlImage){
           this.gambar_default=urlImage;
-      }
+          //eslint-disable-next-line no-console
+        //   console.log(this.id); 
+      },
+  setDataPictures(data){
+      this.productDetails=data;
+      this.gambar_default=data.product_galleries[0].photo;
 
+  },
+
+  },
+  
+  mounted(){
+      axios
+      .get("http://127.0.0.1:8000/api/products",{
+          params:{
+            id:this.$route.params.id
+          }
+      })
+      .then(res=>(this.setDataPictures(res.data.data)))
+      .catch(err=>console.log(err));
   }
 }
 </script>
