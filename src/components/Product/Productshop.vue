@@ -38,11 +38,14 @@
                                             <h3>{{productDetails.name}}</h3>
                                         </div>
                                         <div class="pd-desc  text-left">
-                                            <p>{{productDetails.description}}</p>
+                                            <p v-html="productDetails.description"></p>
                                             <h4>${{productDetails.price}}</h4>
                                         </div>
                                         <div class="quantity">
-                                            <router-link to="/cart" class="primary-btn pd-cart">Add To Cart</router-link>
+                                            <!-- <router-link to="/cart" class="primary-btn pd-cart">Add To Cart</router-link> -->
+                                        <router-link to="/cart">
+                                            <a href="#" @click="saveKeranjang(productDetails.id, productDetails.name,productDetails.price, productDetails.product_galleries[0].photo)" class="primary-btn pd-cart"> Add to Cart</a>
+                                        </router-link>
                                         </div>
                                     </div>
                                 </div>
@@ -72,24 +75,45 @@ export default {
               "img/nb/nb3.jpg",
               "img/nb/nb4.jpg",
           ],
-          productDetails:[]
+          productDetails:[],
+          keranjangUser:[],
       }
   },
-  methods:{
+  methods:{ 
       changeImage(urlImage){
           this.gambar_default=urlImage;
           //eslint-disable-next-line no-console
         //   console.log(this.id); 
       },
-  setDataPictures(data){
-      this.productDetails=data;
-      this.gambar_default=data.product_galleries[0].photo;
+        setDataPictures(data){
+            this.productDetails=data;
+            this.gambar_default=data.product_galleries[0].photo;
 
-  },
+        },
+
+        saveKeranjang(idProduct,nameProduct,priceProduct,photoProduct){
+            var productStored={
+                "id" : idProduct,
+                "name" : nameProduct, 
+                "price" : priceProduct, 
+                "photo" : photoProduct, 
+            }
+            
+            this.keranjangUser.push(productStored);
+            const parsed = JSON.stringify(this.keranjangUser);
+            localStorage.setItem('keranjangUser', parsed);
+        } 
 
   },
   
   mounted(){
+      if (localStorage.getItem('keranjangUser')) {
+          try{
+              this.keranjangUser = JSON.parse(localStorage.getItem('keranjangUser'));
+            }catch(e){
+                localStorage.removeItem('keranjangUser');
+            }
+    }
       axios
       .get("http://127.0.0.1:8000/api/products",{
           params:{
